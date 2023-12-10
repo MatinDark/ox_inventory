@@ -104,7 +104,8 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 	local left = Inventory(source) --[[@as OxInventory]]
 	local right, closestCoords
 
-	Inventory.CloseAll(left, (invType == 'drop' or invType == 'container' or not invType) and source)
+    left:closeInventory(true)
+	Inventory.CloseAll(left, source)
 
     if invType == 'player' and data == source then
         data = nil
@@ -223,7 +224,7 @@ end)
 ---@param invType string
 ---@param data string|number|table
 exports('forceOpenInventory', function(playerId, invType, data)
-	local left, right = openInventory(playerId, invType, data)
+	local left, right = openInventory(playerId, invType, data, true)
 
 	if left and right then
 		TriggerClientEvent('ox_inventory:forceOpenInventory', playerId, left, right)

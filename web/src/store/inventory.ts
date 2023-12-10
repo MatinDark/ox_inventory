@@ -2,11 +2,11 @@ import { createSlice, current, isFulfilled, isPending, isRejected, PayloadAction
 import type { RootState } from '.';
 import { Slot, State } from '../typings';
 import {
-  setupInventoryReducer,
+  moveSlotsReducer,
   refreshSlotsReducer,
+  setupInventoryReducer,
   stackSlotsReducer,
   swapSlotsReducer,
-  moveSlotsReducer,
 } from '../reducers';
 
 const initialState: State = {
@@ -25,7 +25,6 @@ const initialState: State = {
     items: [],
   },
   additionalMetadata: new Array(),
-  contextMenu: { coords: null },
   itemAmount: 0,
   shiftPressed: false,
   isBusy: false,
@@ -40,14 +39,15 @@ export const inventorySlice = createSlice({
     setupInventory: setupInventoryReducer,
     moveSlots: moveSlotsReducer,
     refreshSlots: refreshSlotsReducer,
-    setContextMenu: (
-      state,
-      action: PayloadAction<{ coords: { mouseX: number; mouseY: number } | null; item?: Slot }>
-    ) => {
-      state.contextMenu = action.payload;
-    },
-    setAdditionalMetadata: (state, action: PayloadAction<Array<{metadata: string, value: string}>>) => {
-      state.additionalMetadata = [ ...state.additionalMetadata, ...action.payload ];
+    setAdditionalMetadata: (state, action: PayloadAction<Array<{ metadata: string; value: string }>>) => {
+      const metadata = [];
+
+      for (let i = 0; i < action.payload.length; i++) {
+        const entry = action.payload[i];
+        if (!state.additionalMetadata.find((el) => el.value === entry.value)) metadata.push(entry);
+      }
+
+      state.additionalMetadata = [...state.additionalMetadata, ...metadata];
     },
     setItemAmount: (state, action: PayloadAction<number>) => {
       state.itemAmount = action.payload;
@@ -87,7 +87,6 @@ export const inventorySlice = createSlice({
 
 export const {
   setAdditionalMetadata,
-  setContextMenu,
   setItemAmount,
   setShiftPressed,
   setupInventory,
